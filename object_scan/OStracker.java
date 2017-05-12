@@ -16,12 +16,13 @@ You should have received a copy of the GNU General Public License
 along with Object Scan.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import java.awt.Color;
+
 import ij.IJ;
 import ij.ImagePlus;
-import ij.gui.*;
-import java.util.*;
-import java.awt.Color;
-import ij.measure.ResultsTable;
+import ij.gui.Arrow;
+import ij.gui.OvalRoi;
+import ij.gui.Overlay;
 
 public class OStracker{
 
@@ -33,7 +34,6 @@ C = imp.getNChannels();
 Z = imp.getNSlices();
 T = imp.getNFrames();
 String unit = imp.getCalibration().getUnit();
-String title = imp.getTitle();
 xcal = imp.getCalibration().pixelWidth;
 ycal = imp.getCalibration().pixelHeight;
 zcal = imp.getCalibration().pixelDepth;
@@ -147,7 +147,6 @@ if(T>1){t1 = box.rt.getValue("Frame",i1);}else{t1=1.0;}
 if(C>1){c1 = box.rt.getValue("Ch",i1);}else{c1=1.0;}
 Color arrowcolour = Color.cyan;
 int alpha = 255;
-ArrayList<javax.vecmath.Point3f> mesh = new ArrayList<javax.vecmath.Point3f>();
 arrowcolour = colours2[(int)c1];
 	for(int i2=0;i2<box.rt.getCounter();i2++){
 	arrowcolour = new Color(arrowcolour.getRed(),arrowcolour.getGreen(),arrowcolour.getBlue(),alpha);

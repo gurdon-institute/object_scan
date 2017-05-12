@@ -16,11 +16,15 @@ You should have received a copy of the GNU General Public License
 along with Object Scan.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import ij.plugin.PlugIn;
-import ij.*;
-import ij.process.*;
-import ij.gui.GenericDialog;
 import java.util.Arrays;
+
+import ij.IJ;
+import ij.ImagePlus;
+import ij.Prefs;
+import ij.Undo;
+import ij.plugin.PlugIn;
+import ij.process.FloatProcessor;
+import ij.process.ImageProcessor;
 
 //This is a modified version of the plugin version (http://rsbweb.nih.gov/ij/plugins/canny/index.html) of Tom Gibara's Canny edge detector (http://www.tomgibara.com/computer-vision/canny-edge-detector).
 
@@ -33,9 +37,6 @@ public class Canny implements PlugIn {
 	private int height, width, picsize;
 	private int[] data, magnitude;
 	private ImagePlus sourceImage;
-	private static float sGaussianKernelRadius = 2f;
-	private static float sLowThreshold = 2.5f;
-	private static float sHighThreshold = 7.5f;
 	private float gaussianKernelRadius = 2f;
 	private float lowThreshold = 2.5f;
 	private float highThreshold = 7.5f;
@@ -306,10 +307,6 @@ public class Canny implements PlugIn {
 		for (int i = 0; i < picsize; i++) {
 			data[i] = data[i] > 0 ? 255 : 0;
 		}
-	}
-	
-	private int luminance(float r, float g, float b) {
-		return Math.round(0.299f * r + 0.587f * g + 0.114f * b);
 	}
 	
 	private void readLuminance() {

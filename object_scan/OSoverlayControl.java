@@ -16,24 +16,48 @@ You should have received a copy of the GNU General Public License
 along with Object Scan.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.util.Arrays;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.text.html.HTMLEditorKit;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
-import ij.Prefs;
-import ij.process.*;
-import ij.gui.*;
-import ij.plugin.*;
-import java.awt.BorderLayout;
-import java.util.*;
-import java.awt.*;
-import java.util.Arrays;
-
-import javax.swing.*;
-import javax.swing.BoxLayout;
-import javax.swing.text.html.HTMLEditorKit;
-import ij.plugin.frame.RoiManager;
+import ij.gui.Overlay;
+import ij.gui.Roi;
+import ij.gui.TextRoi;
 import ij.measure.ResultsTable;
-import java.awt.event.*;
 import ij.text.TextWindow;
 
 public class OSoverlayControl implements ActionListener{
@@ -110,8 +134,8 @@ if(imp.getOverlay().size()==0){return;}
 info = ""; //reset reporter html string
 for(int i=txtStart;i<txtEnd;i++){
 	TextRoi thisRoi = (TextRoi)imp.getOverlay().get(i);	
-	if(thisRoi.getCurrentFont()==box.biggerfont){
-	thisRoi.setCurrentFont(box.bigfont);
+	if(thisRoi.getCurrentFont()==OSbox.biggerfont){
+	thisRoi.setCurrentFont(OSbox.bigfont);
 	if(label==false){thisRoi.setStrokeColor(hidecol);}
 	else if(filled==true){thisRoi.setStrokeColor(origColours[i].darker());}
 	else{thisRoi.setStrokeColor(origColours[i]);}
@@ -221,12 +245,12 @@ for(int i=txtStart;i<txtEnd;i++){
 	Color HC = thisRoi.getStrokeColor();
 	highlightColour = new Color(Math.abs(255-HC.getRed()/2),Math.abs(255-HC.getGreen()/2),Math.abs(255-HC.getBlue()/2));
 	if((thisRoi.getText().matches("\u00D7"+obj+"\\n*"))&&(thisRoi.getCurrentFont().getSize()==12)){
-		thisRoi.setCurrentFont(box.biggerfont);
+		thisRoi.setCurrentFont(OSbox.biggerfont);
 		thisRoi.setStrokeColor(highlightColour);
 		thisRoi.setLocation(thisRoi.getBounds().x-xShift,thisRoi.getBounds().y-yShift);
 	}
-	else if((shift==false)&&(!thisRoi.getText().matches("\u00D7"+obj+"\\n*"))&&(thisRoi.getCurrentFont()==box.biggerfont)){	//check font to see if roi is currently highlighted
-	thisRoi.setCurrentFont(box.bigfont);
+	else if((shift==false)&&(!thisRoi.getText().matches("\u00D7"+obj+"\\n*"))&&(thisRoi.getCurrentFont()==OSbox.biggerfont)){	//check font to see if roi is currently highlighted
+	thisRoi.setCurrentFont(OSbox.bigfont);
 	if(label==false){thisRoi.setStrokeColor(hidecol);}
 	else if(filled==true){thisRoi.setStrokeColor(origColours[i].darker());}
 	else{thisRoi.setStrokeColor(origColours[i]);}
@@ -248,7 +272,7 @@ return button;
 }
 private JRadioButton RB(String name, boolean state){
 JRadioButton rb = new JRadioButton(name, state);
-rb.setBackground(box.backcol);rb.setForeground(box.frontcol);
+rb.setBackground(OSbox.backcol);rb.setForeground(OSbox.frontcol);
 rb.addActionListener(this);
 return rb;
 }
@@ -281,10 +305,10 @@ if(box.objects==null){
 		}
 	}
 }
-if(box.outlineset=="Thin"){outline = box.thinStroke;}
-else if(box.outlineset=="Thick"){outline = box.thickStroke;}
-else if(box.outlineset=="Dotted"){outline = box.dotStroke;}
-else if(box.outlineset=="Dashed"){outline = box.dashStroke;}
+if(box.outlineset=="Thin"){outline = OSbox.thinStroke;}
+else if(box.outlineset=="Thick"){outline = OSbox.thickStroke;}
+else if(box.outlineset=="Dotted"){outline = OSbox.dotStroke;}
+else if(box.outlineset=="Dashed"){outline = OSbox.dashStroke;}
 if(box.analysis=="Track"){track=true;}
 origColours = new Color[ol.size()];
 for(int i=0;i<ol.size();i++){
@@ -349,24 +373,24 @@ control = new JFrame();
 imp.getWindow().toFront();
 Rectangle br = imp.getWindow().getBounds();
 control.setLocation(br.x+br.width,br.y);
-control.getContentPane().setBackground(box.backcol);
+control.getContentPane().setBackground(OSbox.backcol);
 control.setLayout(new BoxLayout(control.getContentPane(),BoxLayout.Y_AXIS));
 control.setUndecorated(true);
 JPanel topPanel = new JPanel();
 topPanel.setLayout(new BorderLayout());
-topPanel.setBackground(box.backcol);
+topPanel.setBackground(OSbox.backcol);
 JLabel head1 = new JLabel("Object Scan Overlay",JLabel.CENTER);
-head1.setFont(box.medfont);
+head1.setFont(OSbox.medfont);
 control.add(head1);
 JLabel head2 = new JLabel("<html><p style='width:150px'>"+imp.getTitle()+"</p></html>",JLabel.CENTER);
-head2.setFont(box.smallfont);
+head2.setFont(OSbox.smallfont);
 topPanel.add(BorderLayout.NORTH,head1);
 topPanel.add(BorderLayout.CENTER,head2);
 control.add(topPanel);
 JPanel all = new JPanel(new GridLayout(1,2,2,2));
 	all.setPreferredSize(new Dimension(100,40));
-	all.setBackground(box.backcol);
-	all.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black),"Overlay",0,0,box.bigfont,box.frontcol));
+	all.setBackground(OSbox.backcol);
+	all.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black),"Overlay",0,0,OSbox.bigfont,OSbox.frontcol));
 	JRadioButton RBall1 = RB("On", true);
 	JRadioButton RBall2 = RB("Off", false);
 	RBall1.setActionCommand("olon");RBall2.setActionCommand("oloff");
@@ -377,8 +401,8 @@ JPanel all = new JPanel(new GridLayout(1,2,2,2));
 	control.add(all);
 JPanel lab = new JPanel(new GridLayout(1,2,2,2));
 	lab.setPreferredSize(new Dimension(160,40));
-	lab.setBackground(box.backcol);
-	lab.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK),"Labels",0,0,box.bigfont,box.frontcol));
+	lab.setBackground(OSbox.backcol);
+	lab.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK),"Labels",0,0,OSbox.bigfont,OSbox.frontcol));
 	JRadioButton RBlab1 = RB("Hide", false);
 	JRadioButton RBlab2 = RB("Show", true);
 	ButtonGroup RBlabgroup = new ButtonGroup();
@@ -388,8 +412,8 @@ JPanel lab = new JPanel(new GridLayout(1,2,2,2));
 	control.add(lab);
 JPanel lin = new JPanel(new GridLayout(2,3,2,2));
 	lin.setPreferredSize(new Dimension(220,80));
-	lin.setBackground(box.backcol);
-	lin.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK),"Shapes",0,0,box.bigfont,box.frontcol));
+	lin.setBackground(OSbox.backcol);
+	lin.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK),"Shapes",0,0,OSbox.bigfont,OSbox.frontcol));
 	JRadioButton RBlin1 = RB("None", box.outlineset=="None");
 	JRadioButton RBlin2 = RB("Thin", box.outlineset=="Thin");
 	JRadioButton RBlin3 = RB("Thick", box.outlineset=="Thick");
@@ -403,8 +427,8 @@ JPanel lin = new JPanel(new GridLayout(2,3,2,2));
 	control.add(lin);
 JPanel rep = new JPanel(new GridLayout(2,3,2,2));
 	rep.setPreferredSize(new Dimension(220,80));
-	rep.setBackground(box.backcol);
-	rep.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK),"Object Spy",0,0,box.bigfont,box.frontcol));
+	rep.setBackground(OSbox.backcol);
+	rep.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK),"Object Spy",0,0,OSbox.bigfont,OSbox.frontcol));
 	JRadioButton RBrep1 = RB("Off", locate=="Off");
 	JRadioButton RBrep2 = RB("Top", locate=="Top");
 	JRadioButton RBrep3 = RB("Bottom", locate=="Bottom");
@@ -417,7 +441,7 @@ JPanel rep = new JPanel(new GridLayout(2,3,2,2));
 	box.makeDraggable(rep,control);
 	control.add(rep);
 JPanel buttons = new JPanel();
-buttons.setBackground(box.backcol);
+buttons.setBackground(OSbox.backcol);
 buttons.add(buttoner("Close","mainclose"));
 buttons.add(buttoner("3D View","3D View"));
 control.add(buttons);
@@ -480,10 +504,10 @@ if (event.getActionCommand().equals("None")){	//shapes
 }
 if ((event.getActionCommand().equals("Thin"))||(event.getActionCommand().equals("Thick"))||(event.getActionCommand().equals("Dotted"))||(event.getActionCommand().equals("Dashed"))){	//shapes
 	filled = false;
-	if (event.getActionCommand().equals("Thin")){outline=box.thinStroke;}
-	else if (event.getActionCommand().equals("Thick")){outline=box.thickStroke;}
-	else if (event.getActionCommand().equals("Dotted")){outline=box.dotStroke;}
-	else if (event.getActionCommand().equals("Dashed")){outline=box.dashStroke;}
+	if (event.getActionCommand().equals("Thin")){outline=OSbox.thinStroke;}
+	else if (event.getActionCommand().equals("Thick")){outline=OSbox.thickStroke;}
+	else if (event.getActionCommand().equals("Dotted")){outline=OSbox.dotStroke;}
+	else if (event.getActionCommand().equals("Dashed")){outline=OSbox.dashStroke;}
 	
 	IJ.run("Overlay Options...", "fill=none apply set");
 	for(int i=0;i<txtStart;i++){
@@ -516,7 +540,7 @@ if (event.getActionCommand().equals("Filled")){	//shapes
 		for(int i=txtStart;i<txtEnd;i++){
 		TextRoi thisRoi = (TextRoi)imp.getOverlay().get(i);
 		thisRoi.setStrokeColor(origColours[i].darker());
-		thisRoi.setCurrentFont(box.bigfont);
+		thisRoi.setCurrentFont(OSbox.bigfont);
 		}
 	}
 	imp.updateAndDraw();

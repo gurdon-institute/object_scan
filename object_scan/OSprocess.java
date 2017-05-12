@@ -16,16 +16,17 @@ You should have received a copy of the GNU General Public License
 along with Object Scan.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import java.awt.Rectangle;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
-import ij.process.*;
-import ij.gui.*;
-import ij.plugin.*;
-import java.awt.Polygon;
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
+import ij.gui.OvalRoi;
+import ij.gui.Roi;
+import ij.plugin.Duplicator;
+import ij.plugin.ImageCalculator;
 import ij.plugin.frame.RoiManager;
+import ij.process.ImageProcessor;
 
 public class OSprocess{
 ImageCalculator ic = new ImageCalculator();
@@ -71,7 +72,7 @@ if(box.pronone==false){
 }
 
 }catch(Exception e){throw(new Exception(e.getStackTrace()[1].toString()+System.getProperty("line.separator")+"(Set.analysis) "+e.toString()));}
-finally{return imp;}
+return imp;
 }
 
 public ImagePlus doSegment(ImagePlus imp,ImagePlus copy,OSbox box) throws Exception{
@@ -195,7 +196,7 @@ WindowManager.setTempCurrentImage(imp);
 }//intensity segment
 
 }catch(Exception e){IJ.log(e.getStackTrace()[0].toString()+System.getProperty("line.separator")+"(Segment) "+e.toString());}
-finally{return imp;}
+return imp;
 }
 
 }

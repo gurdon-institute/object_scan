@@ -16,18 +16,27 @@ You should have received a copy of the GNU General Public License
 along with Object Scan.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import ij.ImagePlus;
 import java.awt.Color;
-import ij.process.LUT;
 import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.event.*;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.text.Format;
-import javax.swing.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
+import ij.ImagePlus;
+import ij.process.LUT;
 
 public class OSutil{
 private int C;
-private OSbox box;
 public static final int BIG = 3;
 public static final int MED = 2;
 public static final int SMALL = 1;
@@ -38,25 +47,25 @@ private static final FocusAdapter focus = new FocusAdapter(){public void focusGa
 			});
 			}};
 
-public OSutil(OSbox box){
-this.box = box;
+public OSutil(){
+
 }
 
 public JButton buttoner(String label,int type,ActionListener al){
 JButton button = new JButton(label);
 if(type==BIG){
-button.setFont(box.bigfont);
-button.setBackground(box.buttoncol1);
+button.setFont(OSbox.bigfont);
+button.setBackground(OSbox.buttoncol1);
 }
 if(type==MED){
-button.setFont(box.medfont);
-button.setBackground(box.buttoncol1);
+button.setFont(OSbox.medfont);
+button.setBackground(OSbox.buttoncol1);
 }
 if(type==SMALL){
-button.setFont(box.smallfont);
-button.setBackground(box.buttoncol2);
+button.setFont(OSbox.smallfont);
+button.setBackground(OSbox.buttoncol2);
 }
-button.setForeground(box.frontcol);
+button.setForeground(OSbox.frontcol);
 button.setFocusPainted(false);
 button.addActionListener(al);
 return button;
@@ -78,7 +87,7 @@ public JFormattedTextField numberfield(Format format,double value,int columns){
 public JPanel paneller(JComponent label,JComponent control){
 	JPanel pan = new JPanel();
 	pan.setLayout(new FlowLayout(1,4,0));
-	pan.setBackground(box.backcol);
+	pan.setBackground(OSbox.backcol);
 	pan.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 	pan.add(label);
 	if(control!=null)pan.add(control);
@@ -118,10 +127,10 @@ for(int i=1;i<=lutarray.length;i++){
 }
 }
 
-if(box.outlineset=="Thin"){box.outline = box.thinStroke;}
-else if(box.outlineset=="Thick"){box.outline = box.thickStroke;}
-else if(box.outlineset=="Dotted"){box.outline = box.dotStroke;}
-else if(box.outlineset=="Dashed"){box.outline = box.dashStroke;}
+if(box.outlineset=="Thin"){box.outline = OSbox.thinStroke;}
+else if(box.outlineset=="Thick"){box.outline = OSbox.thickStroke;}
+else if(box.outlineset=="Dotted"){box.outline = OSbox.dotStroke;}
+else if(box.outlineset=="Dashed"){box.outline = OSbox.dashStroke;}
 }
 
 }

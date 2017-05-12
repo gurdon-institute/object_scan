@@ -16,19 +16,24 @@ You should have received a copy of the GNU General Public License
 along with Object Scan.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.gui.*;
-import ij.plugin.*;
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import ij.measure.ResultsTable;
-import ij3d.*;
-import view4d.Timeline;
-import customnode.CustomLineMesh;
+import java.awt.Color;
+import java.awt.Toolkit;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3f;
+
+import customnode.CustomLineMesh;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.gui.GenericDialog;
+import ij.plugin.Duplicator;
+import ij3d.Content;
+import ij3d.ContentCreator;
+import ij3d.Image3DUniverse;
+import view4d.Timeline;
 
 public class OS3d{
 	
@@ -62,7 +67,7 @@ int op3dW = 160;int op3dH = 160;
 int op3dXpos = (Toolkit.getDefaultToolkit().getScreenSize().width-op3dW)/2;
 int op3dYpos = (Toolkit.getDefaultToolkit().getScreenSize().height-op3dH)/4;
 op3d.setBounds(op3dXpos,op3dYpos,op3dW,op3dH);
-op3d.setBackground(box.backcol.brighter());
+op3d.setBackground(OSbox.backcol.brighter());
 op3d.setUndecorated(true);
 op3d.setResizable(false);
 op3d.addMessage("Display in 3D Viewer (Schmid et al. BMC Bioinformatics 2010)");
@@ -122,7 +127,7 @@ double ol = box.analysis=="Track"?box.objects.getValue("Lineage", i):-1.0;
 			double oox = box.objects.getValue("X", m);
 			double ooy = box.objects.getValue("Y", m);
 			double ooz = Z>1?box.objects.getValue("Z", m):1.0;
-			double ooc = box.objects.getValue("C", m);
+			//double ooc = box.objects.getValue("C", m);
 			double oot = T>1?box.objects.getValue("T", m)/tcal:1.0;
 			double ool = box.objects.getValue("Lineage", m);
 			if((ol==ool)&&(ot+1==oot)&&(oot<=t)&&(t-oot<box.taillength)){

@@ -16,22 +16,24 @@ You should have received a copy of the GNU General Public License
 along with Object Scan.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import java.awt.Color;
+import java.awt.Image;
+import java.awt.Toolkit;
+
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+
 import ij.IJ;
 import ij.ImagePlus;
-import ij.gui.*;
-import java.awt.*;
-import javax.swing.*;
-import ij.measure.ResultsTable;
+import ij.gui.Overlay;
 
 public class OSrainbow{
 double change;
 int colmax;
-private final Image logoimage = Toolkit.getDefaultToolkit().getImage(getClass().getResource("logo_borded_336x104.gif"));
 private final Image iconimage = Toolkit.getDefaultToolkit().getImage(getClass().getResource("logo_icon.gif"));
 
 public Overlay run(ImagePlus imp,Overlay ol,OSbox box)throws Exception{
 try{
-boolean kexit;
 int itc = 0;
 int OC = box.objects.getCounter();
 double r1,r2,g1,g2,b1,b2;
@@ -178,8 +180,7 @@ int[] csets = new int[colmax+1];
 for(int a=0;a<box.objects.getCounter();a++){
 csets[(int)box.objects.getValue("Colour Population",a)]++;
 }
-int popcount = 0;
-for(int i=0;i<csets.length;i++)if(csets[i]>0){popcount++;}	//count no. of populations with members
+for(int i=0;i<csets.length;i++)if(csets[i]>0){}	//count no. of populations with members
 for(int i=0;i<csets.length;i++){
 	IJ.showStatus("Rainbow mapping...");
 	if(csets[i]>0){	//index of csets is the colour population index

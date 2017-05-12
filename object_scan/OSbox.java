@@ -16,15 +16,17 @@ You should have received a copy of the GNU General Public License
 along with Object Scan.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import java.awt.Color;
-import java.awt.Font;
-import ij.measure.ResultsTable;
-import ij.Prefs;
-import ij.IJ;
 import java.awt.BasicStroke;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import ij.IJ;
+import ij.Prefs;
+import ij.measure.ResultsTable;
 
 public class OSbox{
 

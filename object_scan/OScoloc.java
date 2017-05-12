@@ -16,14 +16,16 @@ You should have received a copy of the GNU General Public License
 along with Object Scan.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import ij.*;
-import ij.ImagePlus;
-import ij.process.*;
-import ij.gui.*;
 import java.awt.Polygon;
-import java.util.*;
+import java.util.ArrayList;
+
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.WindowManager;
+import ij.gui.Plot;
+import ij.gui.Roi;
 import ij.measure.ResultsTable;
-import javax.swing.*;
 
 public class OScoloc{
 private Polygon poly;
@@ -39,11 +41,12 @@ public double[] PCC(ImagePlus imp,Roi roi){
 try{
 CC = imp.getNChannels();
 c2 = roi.getCPosition();
-Vector[] holder = new Vector[CC+1];
-for(int h=1;h<=CC;h++){holder[h]=new Vector();}
+@SuppressWarnings("unchecked")
+ArrayList<Integer>[] holder = new ArrayList[CC+1];
+for(int h=1;h<=CC;h++){holder[h]=new ArrayList<Integer>();}
 for(int c=1;c<=imp.getNChannels();c++){
 	poly = roi.getPolygon();
-	holder[c] = new Vector();
+	holder[c] = new ArrayList<Integer>();
 	imp.setPosition(c,roi.getZPosition(),roi.getTPosition());
 	for(int x=0;x<imp.getWidth();x++){
 		for(int y=0;y<imp.getHeight();y++){
@@ -99,11 +102,12 @@ public double[] MOC(ImagePlus imp,Roi roi){
 try{
 CC = imp.getNChannels();
 c2 = roi.getCPosition();
-Vector[] holder = new Vector[CC+1];
-for(int h=1;h<=CC;h++){holder[h]=new Vector();}
+@SuppressWarnings("unchecked")
+ArrayList<Integer>[] holder = new ArrayList[CC+1];
+for(int h=1;h<=CC;h++){holder[h]=new ArrayList<Integer>();}
 for(int c=1;c<=imp.getNChannels();c++){
 	poly = roi.getPolygon();
-	holder[c] = new Vector();
+	holder[c] = new ArrayList<Integer>();
 	imp.setPosition(c,roi.getZPosition(),roi.getTPosition());
 	for(int x=0;x<imp.getWidth();x++){
 		for(int y=0;y<imp.getHeight();y++){
@@ -137,11 +141,12 @@ public double[] ICQ(ImagePlus imp,Roi roi){
 try{
 CC = imp.getNChannels();
 c2 = roi.getCPosition();
-Vector[] holder = new Vector[CC+1];
-for(int h=1;h<=CC;h++){holder[h]=new Vector();}
+@SuppressWarnings("unchecked")
+ArrayList<Integer>[] holder = new ArrayList[CC+1];
+for(int h=1;h<=CC;h++){holder[h]=new ArrayList<Integer>();}
 for(int c=1;c<=imp.getNChannels();c++){
 	poly = roi.getPolygon();
-	holder[c] = new Vector();
+	holder[c] = new ArrayList<Integer>();
 	imp.setPosition(c,roi.getZPosition(),roi.getTPosition());
 	for(int x=0;x<imp.getWidth();x++){
 		for(int y=0;y<imp.getHeight();y++){

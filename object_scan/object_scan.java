@@ -16,46 +16,78 @@ You should have received a copy of the GNU General Public License
 along with Object Scan.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.text.Format;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JEditorPane;
+import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
 import ij.IJ;
 import ij.ImagePlus;
-import ij.WindowManager;
 import ij.Prefs;
-import ij.process.*;
-import ij.gui.*;
-import ij.plugin.*;
-import java.awt.*;
-import javax.swing.*;
-import ij.plugin.frame.RoiManager;
+import ij.WindowManager;
+import ij.gui.Overlay;
+import ij.gui.PolygonRoi;
+import ij.gui.Roi;
+import ij.gui.TextRoi;
 import ij.measure.ResultsTable;
-import java.awt.event.*;
-import java.text.Format;
-import javax.swing.text.html.HTMLEditorKit;
+import ij.plugin.Duplicator;
+import ij.plugin.PlugIn;
+import ij.plugin.frame.RoiManager;
+import ij.process.StackStatistics;
 
 public class object_scan implements PlugIn, ActionListener{
 	private OSbox box = new OSbox();
 	private OSprocess processor = new OSprocess();
 	private OScoloc co = new OScoloc();
-	private OSutil util = new OSutil(box);
+	private OSutil util = new OSutil();
 	private OSoverlayControl ovc;
 	private ImagePlus imp,copy;
-	private int stackindex,start,end,varreq,thresh,clickX,clickY,Z,T,C,s,bd,sc,sz,st,sw,sh,nobj,focicount;
-	private boolean prev,ismac,stop,done,useExisting;
+	private int stackindex,start,end,thresh,clickX,clickY,Z,T,C,bd,sc,sz,st,sw,sh,nobj,focicount;
+	private boolean prev,stop;
 	private String title,objectstitle;
-	private double estd,minr,clusr,current,x1,y1,z1,t1,c1,a1,x2,y2,z2,t2,a2,c2,index,xcal,ycal,zcal,maxindex,
-	tcal,thisx,thisy,thisz,thist,thisc,thisindex,thism,thisa,trackcur,index1,index2,range,rangeAlt,ed,mes;
+	private double minr,current,x1,y1,z1,t1,c1,a1,x2,y2,z2,t2,a2,c2,xcal,ycal,zcal,maxindex,
+	tcal,thisx,thisy,thisz,thist,thisc,thisindex,thism,thisa,index1,range,rangeAlt,ed,mes;
 	private ResultsTable coloctable;
-	private JFrame gui,helpFrame,active,correct;
+	private JFrame gui,helpFrame,active;
 	private JCheckBox ckbxExedge,ckbxConv,ckbxDowns;
-	private JComboBox analysisBox,colourBox,outlineBox,cmbPrimproc;
+	private JComboBox<String> analysisBox,colourBox,outlineBox,cmbPrimproc;
 	private JLabel labSigma,labVarreq,labEstd,labPrim,labPrimgrad,labTaillength,labClusr,labPrimproc;
 	private JFormattedTextField txtSigma,txtVarreq,txtEstd,txtPrim,txtPrimgrad,txtTaillength,txtClusr;
 	private JPanel panClus,panPrim,panPrimProc,panTail;
 	private final Format intFormat = new java.text.DecimalFormat("#");
 	private final Format doubleFormat = new java.text.DecimalFormat("###.###");
 	private JRadioButton RBpronone, RBprodog, RBprolog, RBprocanny, RBsegnone, RBsegwat, RBsegcirc, RBseggrow;
-	private Dimension smalldim,bigdim,biggerdim;
 	private Overlay ol = new Overlay();
-	private double[] dist, time;
 	private final Image logoimage = Toolkit.getDefaultToolkit().getImage(getClass().getResource("logo_borded_336x104.gif"));
 	private final Image iconimage = Toolkit.getDefaultToolkit().getImage(getClass().getResource("logo_icon.gif"));
 	private static final int downscale = 3;
@@ -111,14 +143,14 @@ public class object_scan implements PlugIn, ActionListener{
 
 		gui = new JFrame();
 		gui.setLocation((int)Math.round((Toolkit.getDefaultToolkit().getScreenSize().getWidth()-350)/2),100);
-		gui.getContentPane().setBackground(box.backcol);
+		gui.getContentPane().setBackground(OSbox.backcol);
 		((JComponent)gui.getContentPane()).setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 		gui.setLayout(new BoxLayout(gui.getContentPane(),BoxLayout.Y_AXIS));
-		gui.setFont(box.bigfont);
+		gui.setFont(OSbox.bigfont);
 		gui.setResizable(false);
 		gui.setUndecorated(true);
 		ImageIcon logo = new ImageIcon(logoimage);
-		ImageIcon icon = new ImageIcon(iconimage);
+		new ImageIcon(iconimage);
 		JLabel logolabel = new JLabel(logo);
 		JPanel logoPanel = util.paneller(logolabel,null);
 		gui.add(logoPanel);
@@ -132,7 +164,7 @@ public class object_scan implements PlugIn, ActionListener{
 		labEstd = util.fieldlabel("Estimated object diameter ("+box.unit+"):");
 		txtEstd = util.numberfield(doubleFormat,Prefs.get("object_scan.box.estd",1),5);
 		gui.add(util.paneller(util.paneller(labEstd,txtEstd),util.buttoner("measure",OSutil.SMALL,this)));
-		analysisBox = new JComboBox(box.analysischoice);
+		analysisBox = new JComboBox<String>(OSbox.analysischoice);
 		analysisBox.setMaximumRowCount(15);
 		analysisBox.setSelectedItem(Prefs.get("object_scan.box.analysis","Standard"));
 		analysisBox.addActionListener(this);
@@ -148,10 +180,10 @@ public class object_scan implements PlugIn, ActionListener{
 		panPrim = util.paneller(util.paneller(labPrim,txtPrim),util.paneller(labPrimgrad,txtPrimgrad));
 		gui.add(panPrim);
 		labPrimproc = new JLabel("Primary Processing:");
-		cmbPrimproc = new JComboBox(new String[]{"None","DoG","LoG","Canny"});
+		cmbPrimproc = new JComboBox<String>(new String[]{"None","DoG","LoG","Canny"});
 		cmbPrimproc.setSelectedItem((Object)Prefs.get("object_scan.box.primproc","None"));
 		cmbPrimproc.addActionListener(this);
-		cmbPrimproc.setBorder(BorderFactory.createMatteBorder(5,2,0,2,box.backcol));
+		cmbPrimproc.setBorder(BorderFactory.createMatteBorder(5,2,0,2,OSbox.backcol));
 		panPrimProc = util.paneller(labPrimproc,cmbPrimproc);
 		gui.add(panPrimProc);
 		labTaillength = util.fieldlabel("Tail (frames):");
@@ -159,28 +191,28 @@ public class object_scan implements PlugIn, ActionListener{
 		panTail = util.paneller(labTaillength,txtTaillength);
 		gui.add(panTail);
 		JPanel pro = new JPanel(new GridLayout(1,4,2,2));
-		pro.setBackground(box.backcol);
-		pro.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black),"Processing",0,0,box.bigfont,box.frontcol));
+		pro.setBackground(OSbox.backcol);
+		pro.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black),"Processing",0,0,OSbox.bigfont,OSbox.frontcol));
 		box.pronone = Prefs.get("object_scan.box.pronone",true); box.prodog = Prefs.get("object_scan.box.prodog",false);
 		box.prolog = Prefs.get("object_scan.box.prolog",false); box.procanny = Prefs.get("object_scan.box.procanny",false);
-		RBpronone = new JRadioButton("None", box.pronone);RBpronone.setBackground(box.backcol);RBpronone.setForeground(box.frontcol);RBpronone.setActionCommand("pronone");
-		RBprodog = new JRadioButton("DoG", box.prodog);RBprodog.setBackground(box.backcol);RBprodog.setForeground(box.frontcol);
-		RBprolog = new JRadioButton("LoG", box.prolog);RBprolog.setBackground(box.backcol);RBprolog.setForeground(box.frontcol);
-		RBprocanny = new JRadioButton("Canny", box.procanny);RBprocanny.setBackground(box.backcol);RBprocanny.setForeground(box.frontcol);
+		RBpronone = new JRadioButton("None", box.pronone);RBpronone.setBackground(OSbox.backcol);RBpronone.setForeground(OSbox.frontcol);RBpronone.setActionCommand("pronone");
+		RBprodog = new JRadioButton("DoG", box.prodog);RBprodog.setBackground(OSbox.backcol);RBprodog.setForeground(OSbox.frontcol);
+		RBprolog = new JRadioButton("LoG", box.prolog);RBprolog.setBackground(OSbox.backcol);RBprolog.setForeground(OSbox.frontcol);
+		RBprocanny = new JRadioButton("Canny", box.procanny);RBprocanny.setBackground(OSbox.backcol);RBprocanny.setForeground(OSbox.frontcol);
 		ButtonGroup RBprogroup = new ButtonGroup();
 		RBprogroup.add(RBpronone);RBprogroup.add(RBprodog);RBprogroup.add(RBprolog);RBprogroup.add(RBprocanny);
 		RBpronone.addActionListener(this);RBprodog.addActionListener(this);RBprolog.addActionListener(this);RBprocanny.addActionListener(this);
 		pro.add(RBpronone);pro.add(RBprodog);pro.add(RBprolog);pro.add(RBprocanny);
 		gui.add(pro);
 		JPanel pan = new JPanel(new GridLayout(2,2,2,2));
-		pan.setBackground(box.backcol);
-		pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black),"Segmentation",0,0,box.bigfont,box.frontcol));
+		pan.setBackground(OSbox.backcol);
+		pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black),"Segmentation",0,0,OSbox.bigfont,OSbox.frontcol));
 		box.noseg = Prefs.get("object_scan.box.noseg",true);box.wat = Prefs.get("object_scan.box.wat",false);
 		box.circseg = Prefs.get("object_scan.box.circseg",false);box.grow = Prefs.get("object_scan.box.grow",false);
-		RBsegnone = new JRadioButton("None", box.noseg);RBsegnone.setBackground(box.backcol);RBsegnone.setForeground(box.frontcol);
-		RBsegwat = new JRadioButton("Watershed", box.wat);RBsegwat.setBackground(box.backcol);RBsegwat.setForeground(box.frontcol);
-		RBsegcirc = new JRadioButton("Circular Morphology", box.circseg);RBsegcirc.setBackground(box.backcol);RBsegcirc.setForeground(box.frontcol);
-		RBseggrow = new JRadioButton("Region Growing", box.grow);RBseggrow.setBackground(box.backcol);RBseggrow.setForeground(box.frontcol);
+		RBsegnone = new JRadioButton("None", box.noseg);RBsegnone.setBackground(OSbox.backcol);RBsegnone.setForeground(OSbox.frontcol);
+		RBsegwat = new JRadioButton("Watershed", box.wat);RBsegwat.setBackground(OSbox.backcol);RBsegwat.setForeground(OSbox.frontcol);
+		RBsegcirc = new JRadioButton("Circular Morphology", box.circseg);RBsegcirc.setBackground(OSbox.backcol);RBsegcirc.setForeground(OSbox.frontcol);
+		RBseggrow = new JRadioButton("Region Growing", box.grow);RBseggrow.setBackground(OSbox.backcol);RBseggrow.setForeground(OSbox.frontcol);
 		ButtonGroup RBgroup = new ButtonGroup();
 		RBgroup.add(RBsegnone);RBgroup.add(RBsegwat);RBgroup.add(RBsegcirc);RBgroup.add(RBseggrow);
 		RBsegnone.addActionListener(this);RBsegwat.addActionListener(this);RBsegcirc.addActionListener(this);RBseggrow.addActionListener(this);
@@ -189,28 +221,28 @@ public class object_scan implements PlugIn, ActionListener{
 		JPanel tickPan = new JPanel();
 		tickPan.setLayout(new GridLayout(2,1,2,2));
 		ckbxExedge = new JCheckBox("Exclude objects touching image edges", Prefs.get("object_scan.box.exedge",true));
-		ckbxExedge.setBackground(box.backcol);
+		ckbxExedge.setBackground(OSbox.backcol);
 		ckbxExedge.addActionListener(this);
 		tickPan.add(util.paneller(new JLabel(""),ckbxExedge));
 		ckbxConv = new JCheckBox("Convex hull map",Prefs.get("object_scan.conv",false));
-		ckbxConv.setBackground(box.backcol);
+		ckbxConv.setBackground(OSbox.backcol);
 		ckbxConv.addActionListener(this);
 		ckbxDowns = new JCheckBox("Fast scan",Prefs.get("object_scan.downs",false));
-		ckbxDowns.setBackground(box.backcol);
+		ckbxDowns.setBackground(OSbox.backcol);
 		ckbxDowns.addActionListener(this);
 		tickPan.add(util.paneller(ckbxConv,ckbxDowns));
-		tickPan.setBackground(box.backcol);
+		tickPan.setBackground(OSbox.backcol);
 		gui.add(tickPan);
-		colourBox = new JComboBox(box.colourchoice);
+		colourBox = new JComboBox<String>(OSbox.colourchoice);
 		colourBox.setSelectedItem(Prefs.get("object_scan.box.colourset","Bold"));
 		colourBox.addActionListener(this);
-		outlineBox = new JComboBox(box.outlinechoice);
+		outlineBox = new JComboBox<String>(OSbox.outlinechoice);
 		outlineBox.setSelectedItem(Prefs.get("object_scan.box.outlineset","Thin"));
 		outlineBox.addActionListener(this);
 		gui.add(util.paneller(util.paneller(new JLabel("Colours:"),colourBox),util.paneller(new JLabel("Lines:"),outlineBox)));
 		gui.add(Box.createRigidArea(new Dimension(300,6)));
 		JPanel buttonpan1 = new JPanel(new GridLayout(0,3,6,6));
-		buttonpan1.setBackground(box.backcol);
+		buttonpan1.setBackground(OSbox.backcol);
 		buttonpan1.add(util.buttoner("Save Settings",OSutil.SMALL,this));
 		buttonpan1.add(util.buttoner("Export Settings",OSutil.SMALL,this));
 		buttonpan1.add(util.buttoner("Help",OSutil.SMALL,this));
@@ -220,7 +252,7 @@ public class object_scan implements PlugIn, ActionListener{
 		gui.add(buttonpan1);
 		gui.add(Box.createRigidArea(new Dimension(300,12)));
 		JPanel buttonpan2 = new JPanel(new GridLayout(0,2,6,6));
-		buttonpan2.setBackground(box.backcol);
+		buttonpan2.setBackground(OSbox.backcol);
 		buttonpan2.add(util.buttoner("OK",OSutil.BIG,this));
 		buttonpan2.add(util.buttoner("Cancel",OSutil.BIG,this));
 		gui.add(buttonpan2);
@@ -295,7 +327,7 @@ public class object_scan implements PlugIn, ActionListener{
 				content.setLayout(new BoxLayout(content,BoxLayout.Y_AXIS));
 				content.setBackground(Color.WHITE);
 				JEditorPane helpPane = new JEditorPane("text/html","");
-				helpPane.setText(box.help);
+				helpPane.setText(OSbox.help);
 				helpPane.setEditable(false);
 				box.makeDraggable(helpPane,helpFrame);
 				JScrollPane scroll = new JScrollPane(helpPane);
@@ -368,19 +400,19 @@ public class object_scan implements PlugIn, ActionListener{
 		try{
 			String tasklabel = (prev==false)?"Scanning...   ":"Previewing...";
 			active = new JFrame(tasklabel);
-			active.setBounds((Toolkit.getDefaultToolkit().getScreenSize().width/2)-(box.activeW/2),(Toolkit.getDefaultToolkit().getScreenSize().height/4),box.activeW,box.activeH);
-			active.setPreferredSize(new Dimension(box.activeW,box.activeH));
+			active.setBounds((Toolkit.getDefaultToolkit().getScreenSize().width/2)-(OSbox.activeW/2),(Toolkit.getDefaultToolkit().getScreenSize().height/4),OSbox.activeW,OSbox.activeH);
+			active.setPreferredSize(new Dimension(OSbox.activeW,OSbox.activeH));
 			active.setAlwaysOnTop(true);
 			active.getContentPane().setBackground(new Color(0,0,0));
 			JComponent pane = (JComponent)active.getContentPane();
-			pane.setBorder(BorderFactory.createLineBorder(box.brightcol,2));
+			pane.setBorder(BorderFactory.createLineBorder(OSbox.brightcol,2));
 			active.setUndecorated(true);
 			active.setLayout(new FlowLayout(1,2,2));
 			JPanel header = new JPanel();
 			header.setLayout(new FlowLayout(2,2,2));
-			header.setPreferredSize(new Dimension(box.activeW-4,30));
+			header.setPreferredSize(new Dimension(OSbox.activeW-4,30));
 			header.setBackground(new Color(0,0,0));
-			JLabel scantitle = new JLabel(tasklabel,2); scantitle.setFont(box.biggerfont); scantitle.setForeground(box.brightcol);
+			JLabel scantitle = new JLabel(tasklabel,2); scantitle.setFont(OSbox.biggerfont); scantitle.setForeground(OSbox.brightcol);
 			header.add(scantitle);
 			JButton mini = util.buttoner("-",OSutil.BIG,this);
 			mini.setMargin(new Insets(0,0,0,0));
@@ -400,6 +432,7 @@ public class object_scan implements PlugIn, ActionListener{
 		}catch(Exception e){IJ.log(e.toString()+System.getProperty("line.separator")+e.getStackTrace()[0].toString());}
 	}
 
+	@SuppressWarnings("deprecation")
 	public int scan(ImagePlus imp){	//main scan method
 		try{	//main try
 			if(WindowManager.getImageCount()==0){IJ.error("No Image","There was an image,\nIt is gone like spring blossom,\nScattered by the wind.");return 0;}
@@ -680,10 +713,10 @@ Z = imp.getNSlices(); */
 					if(C>1){c1=box.rt.getValue("Ch",i);}else{c1=1.0;}
 					a1 = box.rt.getValue("Area",i);
 					z1=z1*zcal;	//calibrate slice number to get z coordinate
-					if(box.analysis=="Track"){trackcur=box.rt.getValue("Track Distance"+"("+box.unit+")",i);}
+					if(box.analysis=="Track"){box.rt.getValue("Track Distance"+"("+box.unit+")",i);}
 					for(int j=0;j<nobj;j++){
 						IJ.showStatus("Clustering Scanned Objects...");
-						index2 = box.rt.getValue("Object",j);
+						box.rt.getValue("Object",j);
 						x2 = box.rt.getValue("X",j);
 						y2 = box.rt.getValue("Y",j);
 						if(Z>1){z2=box.rt.getValue("Slice",j);}else{z2=1.0;}
@@ -872,7 +905,7 @@ Z = imp.getNSlices(); */
 									double innZ = (Z>1)?box.objects.getValue("Z",inner):1d;
 									double innT = (T>1)?box.objects.getValue("T",inner):1d;
 									double innC = box.objects.getValue("C",inner);
-									double innV = box.objects.getValue("Volume"+" ("+box.unit+"\u00B3)",inner);
+									box.objects.getValue("Volume"+" ("+box.unit+"\u00B3)",inner);
 									double ED = Math.sqrt(Math.pow((outX-innX),2)+Math.pow((outY-innY),2)+Math.pow(outZ-innZ,2));
 									if((ED<=range)&&(ED<current[inner])&&(innC!=box.prim)&&(outT==innT)&&(outO!=innO)){
 										current[inner] = ED;
@@ -1041,7 +1074,7 @@ Z = imp.getNSlices(); */
 						String text = new String();
 						text="\u00D7"+IJ.d2s(box.rt.getValue("Object",d),0);
 
-						TextRoi txt = new TextRoi(thisx-3,thisy-7,text,box.bigfont); //cross symbol, needs coord adjustments to place character exactly on centroid
+						TextRoi txt = new TextRoi(thisx-3,thisy-7,text,OSbox.bigfont); //cross symbol, needs coord adjustments to place character exactly on centroid
 						Color txtcolour = box.colours1[(int)thisc];
 
 						if(box.analysis=="Contained Signal"){txtcolour=box.colours1[1];}
@@ -1089,8 +1122,8 @@ Z = imp.getNSlices(); */
 			IJ.showStatus("Object Scan Complete");
 			if(active!=null){active.dispose();}
 			prev=false;
-			return 1;
 		}
+		return 1;
 	}//end scan
 
 }//end class
