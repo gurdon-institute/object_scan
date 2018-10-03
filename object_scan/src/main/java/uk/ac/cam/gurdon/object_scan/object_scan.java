@@ -56,6 +56,7 @@ import org.scijava.command.Command;
 import org.scijava.plugin.Plugin;
 
 import ij.IJ;
+import ij.ImageJ;
 import ij.ImagePlus;
 import ij.Prefs;
 import ij.WindowManager;
@@ -1131,4 +1132,13 @@ Z = imp.getNSlices(); */
 		return 1;
 	}//end scan
 
+	public static void main(String[] arg){
+		
+		ImageJ.main(arg);
+		ImagePlus img = new ImagePlus("E:\\test data\\3D_DAPI_liver.tif");
+		img.show();
+		
+		new object_scan().run();
+	}
+	
 }//end class

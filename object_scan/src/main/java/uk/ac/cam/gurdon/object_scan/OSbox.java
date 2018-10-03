@@ -31,6 +31,8 @@ import ij.measure.ResultsTable;
 
 public class OSbox{
 
+private static final String VERSION = "2.4.0";
+	
 public boolean pronone=true;
 public boolean prodog,prolog,procanny,noseg,wat,circseg,grow,slice;
 public ResultsTable rt,objects;
@@ -130,7 +132,7 @@ public static final String help =
 "<li><i>Overlay Control</i> - open the overlay control for an existing Object Scan overlay without analysing the image. This window will open automatically when an analysis is complete.</li>"+
 "</ul>"+
 "</p>"+
-"<p style=\"font-size:10pt;font-color:grey;text-align:center;\">Object Scan v2.35<br>by Richard Butler, Gurdon Institute Imaging Facility</p>"+
+"<p style=\"font-size:10pt;font-color:grey;text-align:center;\">Object Scan v"+VERSION+"<br>by Richard Butler, Gurdon Institute Imaging Facility</p>"+
 "</body>"+
 "</html>";
 

@@ -94,7 +94,7 @@ RoiManager seeds = new RoiManager(false);
 seeds.addRoi(bob.getRoi());
 seeds.select(bob, 0);
 WindowManager.setTempCurrentImage(bob);
-	if(bob.getRoi().getType()==9){  //9 is constant for composite selection
+	if(bob.getRoi()!=null&&bob.getRoi().getType()==9){  //9 is constant for composite selection
 	seeds.runCommand("Split");
 	seeds.select(bob, 0);
 	seeds.runCommand("Delete");
