@@ -15,6 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Object Scan.  If not, see <http://www.gnu.org/licenses/>.
  */
+package uk.ac.cam.gurdon.object_scan;
 
 import java.awt.Color;
 import java.awt.Container;
@@ -51,6 +52,9 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.scijava.command.Command;
+import org.scijava.plugin.Plugin;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
@@ -61,11 +65,12 @@ import ij.gui.Roi;
 import ij.gui.TextRoi;
 import ij.measure.ResultsTable;
 import ij.plugin.Duplicator;
-import ij.plugin.PlugIn;
 import ij.plugin.frame.RoiManager;
 import ij.process.StackStatistics;
 
-public class object_scan implements PlugIn, ActionListener{
+
+@Plugin(type = Command.class, menuPath = "Plugins>Object Scan")
+public class object_scan implements Command, ActionListener{
 	private OSbox box = new OSbox();
 	private OSprocess processor = new OSprocess();
 	private OScoloc co = new OScoloc();
@@ -107,7 +112,7 @@ public class object_scan implements PlugIn, ActionListener{
 		gui.pack();
 	}
 
-	public void run(String arg){
+	public void run(){
 		try{
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 		}catch(Exception e1){
@@ -1012,7 +1017,7 @@ Z = imp.getNSlices(); */
 						for(int u=0;u<sc;u++){
 							if(surround.getValue("Object",u)==0){surround.deleteRow(u);u--;sc--;}
 						}
-						String surtitle = "Surrounding Foci analysis for "+title+" (scan r="+box.sigma+",grad="+box.varreq+",object d="+box.estd+",1° grad="+box.primgrad+")";
+						String surtitle = "Surrounding Foci analysis for "+title+" (scan r="+box.sigma+",grad="+box.varreq+",object d="+box.estd+",1ï¿½ grad="+box.primgrad+")";
 						surround.show(surtitle);
 						WindowManager.getFrame(surtitle).setBounds(200,100,1000,800);
 					}

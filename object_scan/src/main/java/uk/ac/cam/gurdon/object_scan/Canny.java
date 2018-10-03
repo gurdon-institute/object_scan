@@ -1,3 +1,4 @@
+package uk.ac.cam.gurdon.object_scan;
 /*
 This file is part of Object Scan - by Richard Butler, Gurdon Institute Imaging Facility, University of Cambridge
 Copyright 2013, 2014 Richard Butler

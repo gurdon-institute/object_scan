@@ -1,3 +1,4 @@
+package uk.ac.cam.gurdon.object_scan;
 /*
 This file is part of Object Scan - by Richard Butler, Gurdon Institute Imaging Facility, University of Cambridge
 Copyright 2013, 2014 Richard Butler
@@ -22,8 +23,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-import javax.vecmath.Color3f;
-import javax.vecmath.Point3f;
+import org.scijava.vecmath.Color3f;
+import org.scijava.vecmath.Point3f;
 
 import customnode.CustomLineMesh;
 import ij.IJ;
